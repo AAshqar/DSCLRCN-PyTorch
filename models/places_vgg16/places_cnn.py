@@ -22,7 +22,9 @@ class PlacesCNN(nn.Module):
         
         self.feats.load_state_dict(pretrained_dict)
         
-        self.fc = nn.Linear(78848, 256)
+        self.fc = nn.Linear(512*3*4, 256)
+        
+        #self.upsample = nn.Upsample(size=output_dim, mode='bilinear')
                         
 
     def forward(self, x):
@@ -35,12 +37,15 @@ class PlacesCNN(nn.Module):
         """
         
         x = F.relu(self.feats(x))
-                
+        
+        #print(x.size())
         x = x.view(x.size(0), -1)
         x = self.fc(x)
         
+        #x = self.upsample()
+        
         norm = x.norm(p=2, dim=1, keepdim=True)
-        x_norm = x.div(norm.expand_as(x))*400
+        x_norm = x.div(norm.expand_as(x) + 1e-8)*400
 
         return x_norm
 

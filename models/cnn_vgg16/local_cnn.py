@@ -40,6 +40,8 @@ class LocalFeatsCNN(nn.Module):
         self.conv6_2 = nn.Conv2d(512, 512, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1), dilation=4)
         self.conv7_1 = nn.Conv2d(512, 256, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1), dilation=4)
         self.conv7_2 = nn.Conv2d(256, 256, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1), dilation=4)
+        
+        self.deconv = nn.ConvTranspose2d(512, 256, 7)
                         
 
     def forward(self, x):
@@ -53,13 +55,16 @@ class LocalFeatsCNN(nn.Module):
         
         x = self.feats(x)
         
-        x = F.relu(self.conv6_1(x))
+        #print(x.size())
+        #x = F.relu(self.conv6_1(x))
+        #print(x.size())
+        #x = F.relu(self.conv6_2(x))
         
-        x = F.relu(self.conv6_2(x))
+        #x = F.relu(self.conv7_1(x))
         
-        x = F.relu(self.conv7_1(x))
+        #x = F.relu(self.conv7_2(x))
         
-        x = F.relu(self.conv7_2(x))
+        x = self.deconv(x)
         
         xVector = x.view(x.size(0), x.size(1), -1, 1)
         norm = xVector.norm(p=2, dim=2, keepdim=True)

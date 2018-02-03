@@ -12,7 +12,7 @@ import numpy as np
 
 class DSCLRCN(nn.Module):
 
-    def __init__(self, input_dim=(360, 480), LSTMs_input_size=(256*12, 256*26)):#, LSTM_hs=256):
+    def __init__(self, input_dim=(96, 128), LSTMs_input_size=(256*12, 256*16)):#, LSTM_hs=256):
         super(DSCLRCN, self).__init__()
 
         self.input_dim = input_dim
@@ -33,9 +33,10 @@ class DSCLRCN(nn.Module):
         self.last_conv = nn.Conv2d(4*256, 1, 1)
 
         #print('softmax & upsample')
-        self.score = nn.Softmax2d()
         
         self.upsample = nn.Upsample(size=input_dim, mode='bilinear')
+        
+        self.score = nn.Softmax(dim=2)
 
 
     def forward(self, x):
@@ -55,8 +56,8 @@ class DSCLRCN(nn.Module):
         H_lf, W_lf = local_feats.size()[2:]
         context = self.context(x)
         
-        perm_h = torch.LongTensor(np.arange(W_lf-1, -1, -1))
-        perm_v = torch.LongTensor(np.arange(H_lf-1, -1, -1))
+        perm_h = np.arange(W_lf-1, -1, -1)
+        perm_v = np.arange(H_lf-1, -1, -1)
         
         context_h = self.fc_h(context)
         context_h = context_h.contiguous().view(N, 1, self.LSTMs_isz[0])
@@ -98,12 +99,20 @@ class DSCLRCN(nn.Module):
         
         output_h12v12 = torch.cat((output_h12v1, output_h12v2), dim=1)
         
-        output_score = self.score(self.last_conv(output_h12v12))
+        output_conv = self.last_conv(output_h12v12)
+        
+        #print(output_conv.size())
+        N, C, H_l, W_l, = output_conv.size()
         
         #print('Upsampling')
-        upsampled_score = self.upsample(output_score)
+                        
+        output_upsampled = self.upsample(output_conv)
+        
+        output_score = self.score(output_upsampled.contiguous().view(N, C, -1))
+        
+        output_score = output_score.contiguous().view(N, C, H, W)
 
-        return upsampled_score.squeeze()
+        return output_score
 
     
     @property
