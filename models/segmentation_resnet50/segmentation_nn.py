@@ -18,7 +18,7 @@ class SegmentationNN(nn.Module):
         
         self.trans_feats1 = nn.Conv2d(2048, 512, 1)
         
-        self.trans_feats2 = nn.Conv2d(512, 256, 1)
+        self.trans_feats2 = nn.Conv2d(512, 128, 1)
 
         #self.net_encoder.eval()
         #self.net_decoder = builder.build_decoder(arch='psp_bilinear', fc_dim=2048, weights=decoder_path)
@@ -35,7 +35,7 @@ class SegmentationNN(nn.Module):
         """
         
         x = self.net_encoder(x)
-        print(x.size())
+        #print(x.size())
         #x = self.net_decoder(x, segSize=(x.size(-2), x.size(-1)))
         
         x = F.relu(self.trans_feats1(x))

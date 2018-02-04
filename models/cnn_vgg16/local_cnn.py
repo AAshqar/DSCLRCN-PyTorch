@@ -36,12 +36,12 @@ class LocalFeatsCNN(nn.Module):
         pretrained_dict = {k: v for k, v in pretrained_dict.items() if k in model_dict}
         self.feats.load_state_dict(pretrained_dict)
         
-        self.conv6_1 = nn.Conv2d(512, 512, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1), dilation=4)
-        self.conv6_2 = nn.Conv2d(512, 512, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1), dilation=4)
-        self.conv7_1 = nn.Conv2d(512, 256, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1), dilation=4)
-        self.conv7_2 = nn.Conv2d(256, 256, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1), dilation=4)
+        #self.conv6_1 = nn.Conv2d(512, 512, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1), dilation=4)
+        #self.conv6_2 = nn.Conv2d(512, 512, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1), dilation=4)
+        #self.conv7_1 = nn.Conv2d(512, 256, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1), dilation=4)
+        #self.conv7_2 = nn.Conv2d(256, 256, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1), dilation=4)
         
-        self.deconv = nn.ConvTranspose2d(512, 256, 7)
+        self.deconv = nn.ConvTranspose2d(512, 128, 7)
                         
 
     def forward(self, x):

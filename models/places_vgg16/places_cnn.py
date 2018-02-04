@@ -22,7 +22,7 @@ class PlacesCNN(nn.Module):
         
         self.feats.load_state_dict(pretrained_dict)
         
-        self.fc = nn.Linear(512*3*4, 256)
+        self.fc = nn.Linear(512*3*4, 128)
         
         #self.upsample = nn.Upsample(size=output_dim, mode='bilinear')
                         

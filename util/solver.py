@@ -47,8 +47,8 @@ class Solver(object):
         self._reset_histories()
         iter_per_epoch = len(train_loader)
 
-        #if torch.cuda.is_available():
-        #    model.cuda()
+        if torch.cuda.is_available():
+            model.cuda()
 
         print('START TRAIN.')
         
@@ -59,13 +59,16 @@ class Solver(object):
                 
                 it = j*iter_per_epoch + i
                 inputs, labels = data
-                #if torch.cuda.is_available():
-                #    inputs, labels = inputs.cuda(), labels.cuda()
+                if torch.cuda.is_available():
+                    inputs, labels = inputs.cuda(), labels.cuda()
                 
                 inputs = Variable(inputs)
                 labels = Variable(labels)
                 model.train()
                 outputs = model.forward(inputs)
+                outputs = torch.log(outputs)
+                labels_sum = torch.sum(labels.contiguous().view(labels.size(0),-1), dim=1)
+                labels /= labels_sum.contiguous().view(*labels_sum.size(), 1, 1).expand_as(labels)
                 loss = self.loss_func(outputs, labels)
                 optim.zero_grad()
                 loss.backward()
@@ -79,14 +82,20 @@ class Solver(object):
             
             rand_select = randint(0, len(val_loader)-1)
             for ii, data in enumerate(val_loader, 0):
+                inputs, labels = data
                 if rand_select == ii:
-                    inputs_val = Variable(torch.from_numpy(val_loader.dataset.X))
-                    labels_val = Variable(torch.from_numpy(val_loader.dataset.y))
+                    if torch.cuda.is_available():
+                        inputs, labels = inputs.cuda(), labels.cuda()
+                    inputs_val = Variable(inputs)
+                    labels_val = Variable(labels)
                     outputs_val = model.forward(inputs_val)
+                    outputs_val = torch.log(outputs_val)
+                    labels_sum = torch.sum(labels.contiguous().view(labels.size(0),-1), dim=1)
+                    labels /= labels_sum.contiguous().view(*labels_sum.size(), 1, 1).expand_as(labels)
                     val_loss = self.loss_func(outputs_val, labels_val)
                     self.val_loss_history.append(loss.data[0])
-            print('[Epoch %i/%i] TRAIN KLD Loss: %f' % (j, num_epochs, loss))
-            print('[Epoch %i/%i] VAL KLD Loss: %f' % (j, num_epochs, val_loss))
+            print('[Epoch %i/%i] TRAIN KLD Loss: %f' % (j, num_epochs, loss.data[0]))
+            print('[Epoch %i/%i] VAL KLD Loss: %f' % (j, num_epochs, val_loss.data[0]))
             
         
         print('FINISH.')
