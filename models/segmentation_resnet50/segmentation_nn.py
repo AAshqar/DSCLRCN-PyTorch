@@ -16,7 +16,9 @@ class SegmentationNN(nn.Module):
         builder = ModelBuilder()
         self.net_encoder = builder.build_encoder(arch='resnet50_dilated8', fc_dim=512, weights=encoder_path)
         
-        self.trans_feats = nn.Conv2d(2048, 512, kernel_size=(7, 5), stride=(3, 2), padding=(2, 2))
+        self.trans_feats1 = nn.Conv2d(2048, 512, 1)
+        
+        self.trans_feats2 = nn.Conv2d(512, 128, 1)
 
         #self.net_encoder.eval()
         #self.net_decoder = builder.build_decoder(arch='psp_bilinear', fc_dim=2048, weights=decoder_path)
@@ -36,11 +38,17 @@ class SegmentationNN(nn.Module):
         #print(x.size())
         #x = self.net_decoder(x, segSize=(x.size(-2), x.size(-1)))
         
-        x = self.trans_feats(x)
+        x = F.relu(self.trans_feats1(x))
         
-        #x = self.net_decoder(self.net_encoder(x), segSize=(x.size(-2), x.size(-1)))
+        x = self.trans_feats2(x)
+        
+        xVector = x.view(x.size(0), x.size(1), -1, 1)
+        norm = xVector.norm(p=2, dim=2, keepdim=True)
+        
+        x_norm = x.div(norm.expand_as(x) + 1e-8)*400
 
-        return x
+        return x_norm
+    
 
     @property
     def is_cuda(self):

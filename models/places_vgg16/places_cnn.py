@@ -7,7 +7,7 @@ from models.places_vgg16 import PlacesCNN as PCNN
 
 class PlacesCNN(nn.Module):
 
-    def __init__(self, model_path='models/places_vgg16/PlacesCNN.pth', final_dim=512*30):
+    def __init__(self, model_path='models/places_vgg16/PlacesCNN.pth'):
         super(PlacesCNN, self).__init__()
 
         complete_model = PCNN.PlacesCNN
@@ -22,7 +22,9 @@ class PlacesCNN(nn.Module):
         
         self.feats.load_state_dict(pretrained_dict)
         
-        self.fc = nn.Linear(92160, final_dim)
+        self.fc = nn.Linear(512*3*4, 128)
+        
+        #self.upsample = nn.Upsample(size=output_dim, mode='bilinear')
                         
 
     def forward(self, x):
@@ -36,13 +38,14 @@ class PlacesCNN(nn.Module):
         
         x = F.relu(self.feats(x))
         
-        print(x.size())
-        
+        #print(x.size())
         x = x.view(x.size(0), -1)
         x = self.fc(x)
         
+        #x = self.upsample()
+        
         norm = x.norm(p=2, dim=1, keepdim=True)
-        x_norm = x.div(norm.expand_as(x))*400
+        x_norm = x.div(norm.expand_as(x) + 1e-8)*400
 
         return x_norm
 
