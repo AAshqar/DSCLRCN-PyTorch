@@ -45,7 +45,7 @@ class PlacesCNN(nn.Module):
         #x = self.upsample()
         
         norm = x.norm(p=2, dim=1, keepdim=True)
-        x_norm = x.div(norm.expand_as(x) + 1e-8)*400
+        x_norm = x.div(norm.expand_as(x) + 1e-8)*100
 
         return x_norm
 
