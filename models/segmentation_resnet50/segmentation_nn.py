@@ -45,7 +45,7 @@ class SegmentationNN(nn.Module):
         xVector = x.view(x.size(0), x.size(1), -1, 1)
         norm = xVector.norm(p=2, dim=2, keepdim=True)
         
-        x_norm = x.div(norm.expand_as(x) + 1e-8)*400
+        x_norm = x.div(norm.expand_as(x) + 1e-8)*100
 
         return x_norm
     
