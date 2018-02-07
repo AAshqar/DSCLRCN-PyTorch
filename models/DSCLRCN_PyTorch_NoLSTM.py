@@ -24,14 +24,6 @@ class DSCLRCN(nn.Module):
         else:
             self.local_feats = LocalFeatsCNN()
 
-        #self.context = PlacesCNN()
-
-        #self.fc_h = nn.Linear(128, LSTMs_input_size[0])
-        #self.fc_v = nn.Linear(128, LSTMs_input_size[1])
-
-        #print('Constructing LSTMs')
-        #self.lstm_h = nn.LSTM(LSTMs_input_size[0], LSTMs_input_size[0], 1, batch_first=True)
-        #self.lstm_v = nn.LSTM(LSTMs_input_size[1], LSTMs_input_size[1], 1, batch_first=True)
 
         #print('conv_last')
         self.last_conv = nn.Conv2d(128, 1, 1)
@@ -59,25 +51,6 @@ class DSCLRCN(nn.Module):
         local_feats = self.local_feats(x)
         H_lf, W_lf = local_feats.size()[2:]
 
-        #local_feats_h = local_feats.contiguous().view(N, W_lf, self.LSTMs_isz[0])
-
-        
-        #output_h1, hz1 = self.lstm_h(local_feats_h)
-
-        #output_h1 = output_h1.contiguous().view(N, 128, H_lf, W_lf)
-        
-        
-        #output_h12 = output_h1
-        
-        #context_v = self.fc_v(context)
-        #context_v = context_v.contiguous().view(N, 1, self.LSTMs_isz[1])
-        #output_h12v = output_h12.contiguous().view(N, H_lf, self.LSTMs_isz[1])
-        
-        #output_h12v1, hz3 = self.lstm_v(output_h12v)
-
-        #output_h12v1 = output_h12v1.contiguous().view(N, 128, H_lf, W_lf)
-        
-        #output_h12v12 = output_h12v1
         
         output_conv = self.last_conv(local_feats)
         

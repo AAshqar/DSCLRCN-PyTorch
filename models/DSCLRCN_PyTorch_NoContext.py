@@ -55,45 +55,22 @@ class DSCLRCN(nn.Module):
         local_feats = self.local_feats(x)
         H_lf, W_lf = local_feats.size()[2:]
         
-        #perm_h = np.arange(W_lf-1, -1, -1)
-        #perm_v = np.arange(H_lf-1, -1, -1)
-        
 
         local_feats_h = local_feats.contiguous().view(N, W_lf, self.LSTMs_isz[0])
 
-        #local_feats_h2 = local_feats_h[:, perm_h, :]
-        #local_feats_h2 = torch.cat((context_h, local_feats_h2), dim=1)
-        
-        #print('1st LSTM')
-        #print('1st', local_feats_h1.size())
         output_h1, hz1 = self.lstm_h(local_feats_h)
 
         #print('2nd', output_h1.size())
         output_h1 = output_h1.contiguous().view(N, 128, H_lf, W_lf)
         
-        #print('2nd LSTM')
-        #output_h2, hz2 = self.lstm_h(local_feats_h2)
-        #output_h2 = output_h2[:,1:,:]
-        #output_h2 = output_h2.contiguous().view(N, 128, H_lf, W_lf)
-        
-        #output_h12 = torch.cat((output_h1, output_h2), dim=1)
-        
         output_h12 = output_h1
         
         output_h12v = output_h12.contiguous().view(N, H_lf, self.LSTMs_isz[1])
-        #output_h12v2 = output_h12v[:, perm_v, :]
-        #output_h12v2 = torch.cat((context_v, output_h12v2), dim=1)
         
         #print('3rd LSTM')
         output_h12v1, hz3 = self.lstm_v(output_h12v)
         output_h12v1 = output_h12v1.contiguous().view(N, 128, H_lf, W_lf)
         
-        #print('4th LSTM')
-        #output_h12v2, hz4 = self.lstm_v(output_h12v2)
-        #output_h12v2 = output_h12v2[:,1:,:]
-        #output_h12v2 = output_h12v2.contiguous().view(N, 2*128, H_lf, W_lf)
-        
-        #output_h12v12 = torch.cat((output_h12v1, output_h12v2), dim=1)
         
         output_h12v12 = output_h12v1
         
